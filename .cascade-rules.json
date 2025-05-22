@@ -17,6 +17,10 @@
         "securityBestPractices": true,
         "declareStrictTypes": true
     },
+    "git": {
+        "autoPushAfterCommit": true,
+        "rebaseOnIncomingChanges": true
+    },
     "commitMessages": {
         "style": "conventional",
         "includeFilePaths": false
