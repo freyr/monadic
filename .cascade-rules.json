@@ -15,7 +15,11 @@
         "interfaceSegregation": true,
         "solidPrinciples": true,
         "securityBestPractices": true,
-        "declareStrictTypes": true
+        "declareStrictTypes": true,
+        "stringHandling": {
+            "concatenateVariables": true,
+            "useSingleQuotes": true
+        }
     },
     "git": {
         "autoPushAfterCommit": true,
