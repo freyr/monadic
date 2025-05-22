@@ -1,0 +1,24 @@
+{
+    "phpunit": {
+        "assertionStyle": "self::"
+    },
+    "php": {
+        "strictTypes": true,
+        "typeHinting": true,
+        "nullableTypes": true,
+        "consistentNaming": "PSR-12",
+        "codeComments": true,
+        "errorHandling": "exceptions",
+        "immutableObjects": true,
+        "dependencyInjection": true,
+        "avoidGlobals": true,
+        "interfaceSegregation": true,
+        "solidPrinciples": true,
+        "securityBestPractices": true,
+        "declareStrictTypes": true
+    },
+    "commitMessages": {
+        "style": "conventional",
+        "includeFilePaths": false
+    }
+}

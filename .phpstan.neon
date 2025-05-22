@@ -1,0 +1,12 @@
+parameters:
+    level: max
+    paths:
+        - src
+    excludes_analyse:
+        - tests
+    ignoreErrors:
+        - '#Call to an undefined method [a-zA-Z0-9_]+::[a-zA-Z0-9_]+\(\)#'
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    checkMissingVarTagType: false
+    checkUninitializedProperties: false
