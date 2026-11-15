@@ -6,7 +6,6 @@ namespace Freyr\Monadic\Tests\Service;
 
 class User
 {
-
     public int $id;
     public string $name;
 

@@ -7,11 +7,9 @@
         "php": "^8.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "^12.0",
-        "friendsofphp/php-cs-fixer": "^3.0",
+        "phpunit/phpunit": "^13.4",
         "phpstan/phpstan": "^2.0",
-        "symplify/easy-coding-standard": "^12.3",
-        "phpstan/extension-installer": "^1.4"
+        "symplify/easy-coding-standard": "^13.3"
     },
     "autoload": {
         "psr-4": {
@@ -24,9 +22,14 @@
             "Freyr\\Monadic\\Tests\\": "tests/"
         }
     },
-    "config": {
-        "allow-plugins": {
-            "phpstan/extension-installer": true
-        }
+    "scripts": {
+        "test": "phpunit",
+        "stan": "phpstan analyse",
+        "cs": "ecs check",
+        "check": [
+            "@test",
+            "@stan",
+            "@cs"
+        ]
     }
 }
