@@ -17,11 +17,120 @@ composer require freyr/monadic
 ```
 
 ## Usage
+
+### Option
+
+An `Option` is either `Some` (holds a value) or `None` (holds nothing).
+
 ```php
 use Freyr\Monadic\Option;
-use Freyr\Monadic\Result;
+use Freyr\Monadic\Option\None;
+use Freyr\Monadic\Option\Some;
 
-// Example usage of Option and Result monads
+/** @return Option<string> */
+function findName(int $id): Option
+{
+    $names = [1 => 'Alice', 2 => 'Bob'];
+
+    return isset($names[$id]) ? new Some($names[$id]) : new None();
+}
+
+findName(1)->isDefined();                                    // true
+findName(99)->isDefined();                                   // false
+findName(1)->map(strtoupper(...))->getOrElse('nobody');      // 'ALICE'
+findName(99)->map(strtoupper(...))->getOrElse('nobody');     // 'nobody'
+```
+
+`flatMap()` takes a function that returns an `Option`, so the result is not nested:
+
+```php
+/** @return Option<string> */
+function onlyLongName(string $name): Option
+{
+    return strlen($name) > 3 ? new Some($name) : new None();
+}
+
+findName(1)->flatMap(onlyLongName(...))->getOrElse('none');  // 'Alice'
+findName(2)->flatMap(onlyLongName(...))->getOrElse('none');  // 'none'
+```
+
+`getOrElse($default)` and `getOrCall(callable $default)` differ:
+
+- `getOrElse($default)` returns the default exactly as given. It never calls the default,
+  even when the default is callable. `(new None())->getOrElse('time')` returns the string `'time'`.
+- `getOrCall(callable $default)` calls the default only when the option is `None`
+  and returns its result. Use it when the default is expensive to compute.
+
+```php
+findName(99)->getOrElse('guest');                            // 'guest'
+findName(99)->getOrCall(fn (): string => 'guest');           // 'guest', computed now
+findName(1)->getOrCall(fn (): string => 'guest');            // 'Alice', the function is not called
+```
+
+### Result
+
+A `Result` is either `Ok` (a success value) or `Err` (an error value).
+
+```php
+use Freyr\Monadic\Result;
+use Freyr\Monadic\Result\Err;
+use Freyr\Monadic\Result\Ok;
+
+/** @return Result<string, string> */
+function sendEmail(string $name): Result
+{
+    return $name === 'Carol'
+        ? new Err('Email service error for ' . $name)
+        : new Ok('Email sent to ' . $name);
+}
+
+/** @return Result<string, string> */
+function confirm(string $message): Result
+{
+    return new Ok($message . ' (confirmed)');
+}
+
+$show = fn (Result $result): string => $result->fold(
+    fn (string $message): string => 'Success: ' . $message,
+    fn (string $error): string => 'Failure: ' . $error,
+);
+
+$show(sendEmail('Alice'));                                   // 'Success: Email sent to Alice'
+$show(sendEmail('Carol'));                                   // 'Failure: Email service error for Carol'
+$show(sendEmail('Alice')->map(strtoupper(...)));             // 'Success: EMAIL SENT TO ALICE'
+$show(sendEmail('Alice')->flatMap(confirm(...)));            // 'Success: Email sent to Alice (confirmed)'
+$show(sendEmail('Carol')->flatMap(confirm(...)));            // 'Failure: Email service error for Carol'
+```
+
+`map()` changes the success value. `flatMap()` takes a function that returns a `Result`,
+so a failure stops the chain. An `Err` skips `map()` and `flatMap()` and keeps its error.
+
+Read a `Result` through `fold($ok, $err)`: it calls the first function for `Ok` and the
+second function for `Err`. `Ok::get()` and `Err::getError()` exist only on the concrete
+classes, not on `Result`.
+
+### Full example
+
+`examples/user-service.php` is a runnable example that chains `Option` and `Result`
+in a small user service (find a user, keep adults, send an email, fold to a message).
+Run it with `composer example` or `make example`.
+
+## Development
+
+The tools run in Docker. Each command below runs in the `php` container.
+
+| Command | What it does |
+|---|---|
+| `make install` | Installs the dependencies (`composer update`). |
+| `make check` | Runs the tests (PHPUnit), PHPStan (level max) and ECS. |
+| `make coverage` | Runs the tests with coverage and fails when line coverage is below 100%. |
+| `make infection` | Runs mutation testing (Infection). Minimum MSI is 100%, with uncovered code included. |
+| `make example` | Runs `examples/user-service.php`. |
+
+The container uses PHP 8.5 by default. To build it for PHP 8.4:
+
+```
+PHP_VERSION=8.4 docker compose build php
 ```
 
 ## Educational Purpose

@@ -3,3 +3,4 @@ composer.lock
 cache/
 .phpunit.result.cache
 var/
+.idea/
