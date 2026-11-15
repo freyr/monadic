@@ -7,8 +7,7 @@ namespace Freyr\Monadic\Option;
 use Freyr\Monadic\Option;
 
 /**
- * @template T
- * @extends Option<T>
+ * @extends Option<never>
  */
 final class None extends Option
 {
@@ -19,7 +18,7 @@ final class None extends Option
 
     /**
      * @template U
-     * @param callable(T): U $f
+     * @param callable(never): U $f
      * @return Option<U>
      */
     public function map(callable $f): Option
@@ -29,7 +28,7 @@ final class None extends Option
 
     /**
      * @template U
-     * @param callable(T): Option<U> $f
+     * @param callable(never): Option<U> $f
      * @return Option<U>
      */
     public function flatMap(callable $f): Option
@@ -38,11 +37,22 @@ final class None extends Option
     }
 
     /**
-     * @param T|callable(): T $default
-     * @return T
+     * @template D
+     * @param D $default
+     * @return D
      */
-    public function getOrElse($default)
+    public function getOrElse(mixed $default): mixed
     {
-        return is_callable($default) ? $default() : $default;
+        return $default;
+    }
+
+    /**
+     * @template D
+     * @param callable(): D $default
+     * @return D
+     */
+    public function getOrCall(callable $default): mixed
+    {
+        return $default();
     }
 }

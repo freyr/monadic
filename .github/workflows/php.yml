@@ -1,4 +1,4 @@
-name: PHP Composer
+name: CI
 
 on:
   push:
@@ -10,33 +10,138 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  checks:
+    name: Tests, PHPStan and ECS (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.4', '8.5']
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v7
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          ini-values: error_reporting=-1, display_errors=On
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Get the Composer cache folder
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer packages
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-${{ matrix.php }}-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php }}-
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-interaction --no-progress
+
+      - name: Run tests, PHPStan and ECS
+        run: composer check
+
+      - name: Run the example
+        run: composer example
+
+  lowest-dependencies:
+    name: Tests with the lowest dependencies
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out the code
+        uses: actions/checkout@v7
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
+          coverage: none
 
-      - name: Validate composer.json and composer.lock
-        run: composer validate --strict
+      - name: Get the Composer cache folder
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
-          # You can also cache ~/.composer/cache if you prefer
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-8.4-lowest-${{ hashFiles('composer.json') }}
           restore-keys: |
-            ${{ runner.os }}-php-
+            ${{ runner.os }}-php-8.4-lowest-
+
+      - name: Install the lowest dependencies
+        run: composer update --prefer-lowest --prefer-dist --no-interaction --no-progress
+
+      - name: Run tests
+        run: composer test
+
+  mutation:
+    name: Coverage limit and mutation testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: pcov
+          ini-values: pcov.directory=src
+
+      - name: Get the Composer cache folder
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer packages
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-8.5-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-php-8.5-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer update --prefer-dist --no-interaction --no-progress
 
-      # Uncomment once you have tests defined in composer.json:
-      # - name: Run test suite
-      #   run: composer run-script test
+      - name: Check the line coverage limit
+        run: composer coverage
+
+      - name: Mutation testing of the changed lines
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: >-
+          composer infection --
+          --git-diff-lines
+          --git-diff-base="origin/$BASE_REF"
+          --ignore-msi-with-no-mutations
+          --logger-github=true
+          --no-progress
+
+      - name: Mutation testing of all code
+        if: github.event_name == 'push'
+        run: composer infection -- --logger-github=false --no-progress
+
+  ci-gate:
+    name: ci-gate
+    if: always()
+    needs: [checks, lowest-dependencies, mutation]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: freyr/.github/actions/ci-gate@b0c5431e29887b95f0031751c6d92506a2b2fc81 # v2.0.0
+        with:
+          results: ${{ join(needs.*.result, ' ') }}
