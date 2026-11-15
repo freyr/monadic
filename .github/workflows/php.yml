@@ -81,3 +81,54 @@ jobs:
 
       - name: Run tests
         run: composer test
+
+  mutation:
+    name: Coverage limit and mutation testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: pcov
+          ini-values: pcov.directory=src
+
+      - name: Get the Composer cache folder
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer packages
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-8.5-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-php-8.5-
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-interaction --no-progress
+
+      - name: Check the line coverage limit
+        run: composer coverage
+
+      - name: Mutation testing of the changed lines
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: >-
+          composer infection --
+          --git-diff-lines
+          --git-diff-base="origin/$BASE_REF"
+          --ignore-msi-with-no-mutations
+          --logger-github=true
+          --no-progress
+
+      - name: Mutation testing of all code
+        if: github.event_name == 'push'
+        run: composer infection -- --logger-github=false --no-progress

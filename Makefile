@@ -1,4 +1,4 @@
-.PHONY: shell install test stan cs check
+.PHONY: shell install test stan cs check coverage infection
 
 shell:
 	docker compose run --rm php sh
@@ -17,3 +17,9 @@ cs:
 
 check:
 	docker compose run --rm php composer check
+
+coverage:
+	docker compose run --rm php composer coverage
+
+infection:
+	docker compose run --rm php composer infection
