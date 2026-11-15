@@ -50,6 +50,9 @@ jobs:
       - name: Run tests, PHPStan and ECS
         run: composer check
 
+      - name: Run the example
+        run: composer example
+
   lowest-dependencies:
     name: Tests with the lowest dependencies
     runs-on: ubuntu-latest

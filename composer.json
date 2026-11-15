@@ -41,6 +41,7 @@
             "phpunit --no-progress --coverage-clover var/coverage/clover.xml",
             "@php tools/check-coverage.php var/coverage/clover.xml 100"
         ],
-        "infection": "infection --threads=max --with-uncovered"
+        "infection": "infection --threads=max --with-uncovered",
+        "example": "@php examples/user-service.php"
     }
 }

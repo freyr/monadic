@@ -13,6 +13,7 @@ return ECSConfig::configure()
         __DIR__ . '/src',
         __DIR__ . '/tests',
         __DIR__ . '/tools',
+        __DIR__ . '/examples',
     ])
     ->withSets([
         SetList::PSR_12,
