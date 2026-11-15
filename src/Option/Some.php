@@ -47,10 +47,20 @@ final class Some extends Option
 
     /**
      * @template D
-     * @param D|(callable(): D) $default
+     * @param D $default
      * @return T|D
      */
     public function getOrElse(mixed $default): mixed
+    {
+        return $this->value;
+    }
+
+    /**
+     * @template D
+     * @param callable(): D $default
+     * @return T|D
+     */
+    public function getOrCall(callable $default): mixed
     {
         return $this->value;
     }

@@ -17,6 +17,6 @@
     },
     "testFramework": "phpunit",
     "testFrameworkOptions": "--no-progress",
-    "minMsi": 79,
+    "minMsi": 99,
     "minCoveredMsi": 99
 }

@@ -26,9 +26,20 @@ abstract class Option
     abstract public function flatMap(callable $f): Option;
 
     /**
+     * Returns the held value, or the default exactly as given. Never calls the default.
+     *
      * @template D
-     * @param D|(callable(): D) $default
+     * @param D $default
      * @return T|D
      */
     abstract public function getOrElse(mixed $default): mixed;
+
+    /**
+     * Returns the held value, or the result of calling the default.
+     *
+     * @template D
+     * @param callable(): D $default
+     * @return T|D
+     */
+    abstract public function getOrCall(callable $default): mixed;
 }

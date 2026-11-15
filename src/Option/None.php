@@ -38,11 +38,21 @@ final class None extends Option
 
     /**
      * @template D
-     * @param D|(callable(): D) $default
+     * @param D $default
      * @return D
      */
     public function getOrElse(mixed $default): mixed
     {
-        return is_callable($default) ? $default() : $default;
+        return $default;
+    }
+
+    /**
+     * @template D
+     * @param callable(): D $default
+     * @return D
+     */
+    public function getOrCall(callable $default): mixed
+    {
+        return $default();
     }
 }

@@ -39,11 +39,14 @@ function optionTypes(int $value, string $fallback): void
     assertType('Freyr\Monadic\Option<string>', $some->map(fn (int $x): string => $x > 0 ? $fallback : ''));
     assertType('Freyr\Monadic\Option<float>', $some->flatMap(fn (int $x): Option => new Some($x / 2.0)));
     assertType('int|string', $some->getOrElse($fallback));
-    assertType('bool|int', $some->getOrElse(fn (): bool => $value > 0));
+    assertType('(Closure(): bool)|int', $some->getOrElse(fn (): bool => $value > 0));
+    assertType('bool|int', $some->getOrCall(fn (): bool => $value > 0));
 
     $none = new None();
     assertType('Freyr\Monadic\Option\None', $none);
     assertType('string', $none->getOrElse($fallback));
+    assertType("'time'", $none->getOrElse('time'));
+    assertType('string', $none->getOrCall(fn (): string => $fallback));
     acceptsIntOption($none);
     acceptsIntOption($some);
 }
@@ -54,7 +57,8 @@ function optionTypes(int $value, string $fallback): void
 function getOrElseOnOption(Option $option, string $fallback): void
 {
     assertType('int|string', $option->getOrElse($fallback));
-    assertType('int|string', $option->getOrElse(fn (): string => $fallback));
+    assertType('(Closure(): string)|int', $option->getOrElse(fn (): string => $fallback));
+    assertType('int|string', $option->getOrCall(fn (): string => $fallback));
 }
 
 function resultTypes(int $value, string $message): void
