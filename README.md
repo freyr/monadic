@@ -133,6 +133,10 @@ The container uses PHP 8.5 by default. To build it for PHP 8.4:
 PHP_VERSION=8.4 docker compose build php
 ```
 
+### Releases
+
+The repo follows the release standard of the `freyr/.github` repo. The pull request title is a Conventional Commits title, and it decides the version. Before 1.0.0, `feat!:` (or `BREAKING CHANGE:` in the pull request body) gives a minor version, `feat:` and `fix:` give a patch version, and `docs:`, `test:`, `ci:` and `chore:` give no release. The merge to `main` creates the tag `vX.Y.Z` and the GitHub release, and Packagist reads the version from the tag.
+
 ## Educational Purpose
 This library was created for educational purposes to demonstrate the implementation and use of monadic types in PHP. It is intended to help developers understand and apply functional programming concepts in their PHP projects.
 

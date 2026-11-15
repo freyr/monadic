@@ -1,0 +1,11 @@
+{
+  "packages": [
+    {
+      "name": "monadic",
+      "path": ".",
+      "tag": "v{version}",
+      "ignore": ["tests/**", "examples/**", "tools/**", "*.md"],
+      "initial": "0.2.0"
+    }
+  ]
+}

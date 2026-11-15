@@ -18,6 +18,7 @@
 - Development packages: PHPUnit 13, Easy Coding Standard 13 and PHPStan 2 at level max. PHP CS Fixer is removed.
 - GitHub Actions run the tests, PHPStan and ECS on each pull request, on PHP 8.4 and PHP 8.5.
 - Infection mutation testing, and a 100% line-coverage limit (`composer coverage`).
+- Releases follow the `freyr/.github` release standard: the pull request title sets the version, and each merge to `main` creates a tag `vX.Y.Z` and a GitHub release.
 
 ## [0.1.0] - 2025-05-23
 ### Added
