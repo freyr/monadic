@@ -11,8 +11,12 @@ permissions:
 
 jobs:
   checks:
-    name: Tests, PHPStan and ECS
+    name: Tests, PHPStan and ECS (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.4', '8.5']
 
     steps:
       - name: Check out the code
@@ -21,8 +25,9 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: ${{ matrix.php }}
           coverage: none
+          ini-values: error_reporting=-1, display_errors=On
 
       - name: Validate composer.json
         run: composer validate --strict
@@ -35,9 +40,9 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-php-8.4-${{ hashFiles('composer.json') }}
+          key: ${{ runner.os }}-php-${{ matrix.php }}-${{ hashFiles('composer.json') }}
           restore-keys: |
-            ${{ runner.os }}-php-8.4-
+            ${{ runner.os }}-php-${{ matrix.php }}-
 
       - name: Install dependencies
         run: composer update --prefer-dist --no-interaction --no-progress

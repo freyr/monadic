@@ -7,6 +7,9 @@ This library aims to enhance code reliability and readability by offering a stru
 - **Option Monad**: Represents optional values, allowing for safe chaining and transformation of computations.
 - **Result Monad**: Encapsulates successful or failed computations, providing a clear and concise way to handle errors.
 
+## Requirements
+PHP 8.4 or PHP 8.5.
+
 ## Installation
 To install this library, use Composer:
 ```
