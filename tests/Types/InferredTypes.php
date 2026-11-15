@@ -19,6 +19,17 @@ use function PHPStan\Testing\assertType;
  */
 
 /**
+ * Declares its return type, so the assertion on flatMap() does not depend on
+ * how precisely PHPStan infers the type of a closure body.
+ *
+ * @return Result<float, string>
+ */
+function halfOrError(int $value): Result
+{
+    return $value > 0 ? new Ok($value / 2.0) : new Err('not positive');
+}
+
+/**
  * @param Option<int> $option
  */
 function acceptsIntOption(Option $option): void
@@ -66,9 +77,7 @@ function resultTypes(int $value, string $message): void
     $ok = new Ok($value);
     assertType('Freyr\Monadic\Result\Ok<int>', $ok);
     assertType('Freyr\Monadic\Result<string, never>', $ok->map(fn (int $x): string => $x > 0 ? $message : ''));
-    assertType('Freyr\Monadic\Result<float, string>', $ok->flatMap(
-        fn (int $x): Result => $x > 0 ? new Ok($x / 2.0) : new Err($message)
-    ));
+    assertType('Freyr\Monadic\Result<float, string>', $ok->flatMap(halfOrError(...)));
     assertType('int|string', $ok->fold(fn (int $x): int => $x, fn (): string => $message));
 
     $err = new Err($message);
