@@ -1,4 +1,4 @@
-name: PHP Composer
+name: CI
 
 on:
   push:
@@ -10,33 +10,69 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  checks:
+    name: Tests, PHPStan and ECS
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out the code
+        uses: actions/checkout@v7
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
+          coverage: none
 
-      - name: Validate composer.json and composer.lock
+      - name: Validate composer.json
         run: composer validate --strict
 
-      - name: Cache Composer packages
+      - name: Get the Composer cache folder
         id: composer-cache
-        uses: actions/cache@v3
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer packages
+        uses: actions/cache@v6
         with:
-          # You can also cache ~/.composer/cache if you prefer
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-8.4-${{ hashFiles('composer.json') }}
           restore-keys: |
-            ${{ runner.os }}-php-
+            ${{ runner.os }}-php-8.4-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer update --prefer-dist --no-interaction --no-progress
 
-      # Uncomment once you have tests defined in composer.json:
-      # - name: Run test suite
-      #   run: composer run-script test
+      - name: Run tests, PHPStan and ECS
+        run: composer check
+
+  lowest-dependencies:
+    name: Tests with the lowest dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v7
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: Get the Composer cache folder
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer packages
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php-8.4-lowest-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-php-8.4-lowest-
+
+      - name: Install the lowest dependencies
+        run: composer update --prefer-lowest --prefer-dist --no-interaction --no-progress
+
+      - name: Run tests
+        run: composer test
