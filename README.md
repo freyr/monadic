@@ -135,7 +135,7 @@ PHP_VERSION=8.4 docker compose build php
 
 ### Releases
 
-The repo follows the release standard of the `freyr/.github` repo. The pull request title is a Conventional Commits title, and it decides the version. Before 1.0.0, `feat!:` (or `BREAKING CHANGE:` in the pull request body) gives a minor version, `feat:` and `fix:` give a patch version, and `docs:`, `test:`, `ci:` and `chore:` give no release. The merge to `main` creates the tag `vX.Y.Z` and the GitHub release, and Packagist reads the version from the tag.
+The repo follows the [release standard](https://github.com/freyr/.github#readme) of the `freyr/.github` repo. The pull request title is a Conventional Commits title, and it decides the version. Before 1.0.0, `feat!:` (or `BREAKING CHANGE:` in the pull request body) gives a minor version; `feat:`, `fix:`, `perf:` and `revert:` give a patch version; `docs:`, `test:`, `ci:`, `build:`, `refactor:`, `style:` and `chore:` give no release. A pull request that changes only `tests/`, `examples/`, `tools/` or `*.md` files gives no release. A merge to `main` that gives a release creates the tag `vX.Y.Z` and the GitHub release, and Packagist reads the version from the tag.
 
 ## Educational Purpose
 This library was created for educational purposes to demonstrate the implementation and use of monadic types in PHP. It is intended to help developers understand and apply functional programming concepts in their PHP projects.
