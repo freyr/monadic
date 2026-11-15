@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Freyr\Monadic;
 
 /**
- * @template T
- * @template E
+ * @template-covariant T
+ * @template-covariant E
  */
 abstract class Result
 {
@@ -19,8 +19,9 @@ abstract class Result
 
     /**
      * @template U
-     * @param callable(T): Result<U, E> $f
-     * @return Result<U, E>
+     * @template F
+     * @param callable(T): Result<U, F> $f
+     * @return Result<U, E|F>
      */
     abstract public function flatMap(callable $f): Result;
 

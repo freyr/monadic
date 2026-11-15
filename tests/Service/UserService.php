@@ -13,6 +13,9 @@ use Freyr\Monadic\Result\Ok;
 
 class UserService
 {
+    /**
+     * @return Option<User>
+     */
     public function findUser(int $id): Option
     {
         $fakeDb = [
@@ -25,6 +28,9 @@ class UserService
         return new None();
     }
 
+    /**
+     * @return Result<string, string>
+     */
     public function sendWelcomeEmail(User $user, bool $forceError = false): Result
     {
         if ($forceError) {

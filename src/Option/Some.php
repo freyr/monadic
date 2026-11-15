@@ -7,18 +7,17 @@ namespace Freyr\Monadic\Option;
 use Freyr\Monadic\Option;
 
 /**
- * @template T
+ * @template-covariant T
  * @extends Option<T>
  */
 final class Some extends Option
 {
-    /** @var T */
-    private $value;
-
-    /** @param T $value */
-    public function __construct($value)
-    {
-        $this->value = $value;
+    /**
+     * @param T $value
+     */
+    public function __construct(
+        private readonly mixed $value
+    ) {
     }
 
     public function isDefined(): bool
@@ -47,10 +46,11 @@ final class Some extends Option
     }
 
     /**
-     * @param T|callable(): T $default
-     * @return T
+     * @template D
+     * @param D|(callable(): D) $default
+     * @return T|D
      */
-    public function getOrElse($default)
+    public function getOrElse(mixed $default): mixed
     {
         return $this->value;
     }

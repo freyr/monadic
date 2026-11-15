@@ -7,25 +7,23 @@ namespace Freyr\Monadic\Result;
 use Freyr\Monadic\Result;
 
 /**
- * @template T
- * @template E
- * @extends Result<T, E>
+ * @template-covariant T
+ * @extends Result<T, never>
  */
 final class Ok extends Result
 {
-    /** @var T */
-    private $value;
-
-    /** @param T $value */
-    public function __construct($value)
-    {
-        $this->value = $value;
+    /**
+     * @param T $value
+     */
+    public function __construct(
+        private readonly mixed $value
+    ) {
     }
 
     /**
      * @template U
      * @param callable(T): U $f
-     * @return Result<U, E>
+     * @return Result<U, never>
      */
     public function map(callable $f): Result
     {
@@ -34,16 +32,19 @@ final class Ok extends Result
 
     /**
      * @template U
-     * @param callable(T): Result<U, E> $f
-     * @return Result<U, E>
+     * @template F
+     * @param callable(T): Result<U, F> $f
+     * @return Result<U, F>
      */
     public function flatMap(callable $f): Result
     {
         return $f($this->value);
     }
 
-    /** @return T */
-    public function get()
+    /**
+     * @return T
+     */
+    public function get(): mixed
     {
         return $this->value;
     }
@@ -51,7 +52,7 @@ final class Ok extends Result
     /**
      * @template R
      * @param callable(T): R $ok
-     * @param callable(E): R $err
+     * @param callable(never): R $err
      * @return R
      */
     public function fold(callable $ok, callable $err): mixed

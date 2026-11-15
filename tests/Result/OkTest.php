@@ -19,6 +19,6 @@ final class OkTest extends TestCase
     {
         $ok = new Ok(42);
         $result = $ok->map(fn ($x) => $x + 1);
-        $this->assertEquals(43, $result->get());
+        $this->assertEquals(43, $result->fold(fn ($x) => $x, fn ($e) => $e));
     }
 }

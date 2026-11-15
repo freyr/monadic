@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Freyr\Monadic;
 
 /**
- * @template T
+ * @template-covariant T
  */
 abstract class Option
 {
-    /** @return bool */
     abstract public function isDefined(): bool;
 
     /**
@@ -27,8 +26,9 @@ abstract class Option
     abstract public function flatMap(callable $f): Option;
 
     /**
-     * @param T|callable(): T $default
-     * @return T
+     * @template D
+     * @param D|(callable(): D) $default
+     * @return T|D
      */
-    abstract public function getOrElse($default);
+    abstract public function getOrElse(mixed $default): mixed;
 }
